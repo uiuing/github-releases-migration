@@ -1,0 +1,15 @@
+package hooks
+
+type Task struct {
+	RunState        string `yaml:"run-state" validate:"required,boolean"`
+	UserName        string `yaml:"username" validate:"required"`
+	Repository      string `yaml:"repository" validate:"required"`
+	IntervalSeconds uint64 `yaml:"interval-seconds" validate:"required,numeric,gt=0,lt=8640000"`
+	StorageLocation string `yaml:"storage-location" validate:"required,dir"`
+	PublicUrl       string `yaml:"public-url" validate:"required,url"`
+}
+
+type Config struct {
+	LogLocation string `yaml:"log-location" validate:"required,dir"`
+	Tasks       []Task `yaml:"tasks"  validate:"required,dive"`
+}

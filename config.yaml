@@ -1,3 +1,5 @@
+# Model example:
+
 log-location: /tmp
 tasks:
   -
@@ -6,11 +8,11 @@ tasks:
     repository: gop
     interval-seconds: 3600
     storage-location: /tmp/gop
-    download-url: https://ingop.uiuing.com/mirror/gop/
+    public-url: https://ingop.uiuing.com/mirror/gop
   -
     run-state: false
     username: goplus
     repository: c2go
     interval-seconds: 3600
     storage-location: /tmp/c2go
-    download-url: https://ingop.uiuing.com/mirror/gop/c2go/
+    public-url: https://ingop.uiuing.com/mirror/gop/c2go
