@@ -9,11 +9,11 @@ import (
 
 var conf Config
 
-func ConfigParse() *Config {
-	configor.Load(&conf, "config.yaml")!
-	checkEmpty()!
-	filterHibernationTask()!
-	return &conf
+func ConfigParse() (Config, error) {
+	configor.Load(&conf, "config.yaml")?
+	checkEmpty()?
+	filterHibernationTask()?
+	return conf, nil
 }
 
 func checkEmpty() error {
@@ -37,6 +37,7 @@ func filterHibernationTask() (err error) {
 		%v`, p)
 		}
 	}()
+
 	err = nil
 	for i, task <- conf.Tasks {
 		b, _ := strconv.ParseBool(task.RunState)

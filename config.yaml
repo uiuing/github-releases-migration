@@ -1,6 +1,4 @@
 # Model example:
-
-log-location: /tmp
 tasks:
   -
     run-state: true
@@ -9,10 +7,16 @@ tasks:
     interval-seconds: 3600
     storage-location: /tmp/gop
     public-url: https://ingop.uiuing.com/mirror/gop
+    public-json:
+      source-key: other
+      now-key: zh
   -
-    run-state: false
+    run-state: true
     username: goplus
     repository: c2go
     interval-seconds: 3600
     storage-location: /tmp/c2go
     public-url: https://ingop.uiuing.com/mirror/gop/c2go
+    public-json:
+      source-key: other
+      now-key: zh

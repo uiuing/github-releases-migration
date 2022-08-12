@@ -1,1 +1,47 @@
 package hooks
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path"
+)
+
+var data ReleasesJson
+
+func GetReleasesInfo(username string, repository string) (ReleasesJson, error) {
+	resp, err := http.Get("https://api.github.com/repos/" + username + "/" + repository + "/releases/latest")
+	err?
+	defer func() { resp.Body.Close()! }()
+
+	if resp.StatusCode == 404 {
+		fmt.Errorf("GitHub username:%s repository:%s no release information exists", username, repository)?
+	}
+	body, err := io.ReadAll(resp.Body)
+	err?
+	json.Unmarshal(body, &data)?
+	return data, nil
+}
+
+func DownloadReleasePackage(downloadAddress, tarballUrl string) error {
+	if _, err := os.Stat(downloadAddress); err == nil {
+		os.Remove(downloadAddress)?
+	}
+	out, err := os.Create(downloadAddress + ".tmp")
+	err?
+	defer func() { out.Close()! }()
+
+	resp, err := http.Get(tarballUrl)
+	err?
+	defer func() { resp.Body.Close()! }()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad status: %s", resp.Status)
+	}
+	_, err = io.Copy(out, resp.Body)
+	err?
+	os.Rename(downloadAddress+".tmp", downloadAddress)?
+	return nil
+}
