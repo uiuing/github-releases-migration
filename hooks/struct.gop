@@ -1,18 +1,12 @@
 package hooks
 
-type PublicJson struct {
-	SourceKey string `yaml:"source-key" validate:"required"`
-	NowKey    string `yaml:"now-key" validate:"required"`
-}
-
 type Task struct {
-	RunState        string     `yaml:"run-state" validate:"required,boolean"`
-	UserName        string     `yaml:"username" validate:"required"`
-	Repository      string     `yaml:"repository" validate:"required"`
-	IntervalSeconds int64      `yaml:"interval-seconds" validate:"required,numeric,gt=0"`
-	StorageLocation string     `yaml:"storage-location" validate:"required,dir"`
-	PublicUrl       string     `yaml:"public-url" validate:"required,url"`
-	PublicJson      PublicJson `yaml:"public-json" validate:"required"`
+	RunState        string `yaml:"run-state" validate:"required,boolean"`
+	UserName        string `yaml:"username" validate:"required"`
+	Repository      string `yaml:"repository" validate:"required"`
+	IntervalSeconds int64  `yaml:"interval-seconds" validate:"required,numeric,gt=0"`
+	StorageLocation string `yaml:"storage-location" validate:"required,dir"`
+	PublicUrl       string `yaml:"public-url" validate:"required,url"`
 }
 
 type Config struct {
@@ -21,9 +15,14 @@ type Config struct {
 
 type ReleasesJson struct {
 	HtmlUrl    string `json:"html_url"`
-	Id         int    `json:"id"`
+	Id         int64  `json:"id"`
 	Name       string `json:"name"`
 	PublicDate string `json:"published_at"`
 	TarballUrl string `json:"tarball_url"`
 	Body       string `json:"body"`
+}
+
+type BootJson struct {
+	ReleasesJson
+	OldTarballUrl string `json:"old_tarball_url"`
 }

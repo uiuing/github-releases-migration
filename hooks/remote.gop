@@ -7,40 +7,75 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 )
 
-var data ReleasesJson
+func (r ReleasesJson) GeneralBootFile(t Task, localFileName string) (BootJson, error) {
+	var b BootJson
+	b.HtmlUrl = r.HtmlUrl
+	b.Name = r.Name
+	b.Id = r.Id
+	b.PublicDate = r.PublicDate
+	b.Body = r.Body
+	if r.TarballUrl[len(t.PublicUrl)-1:] == "/" {
+		b.TarballUrl = t.PublicUrl + localFileName
+	} else {
+		b.TarballUrl = t.PublicUrl + "/" + localFileName
+	}
+	b.OldTarballUrl = r.TarballUrl
+	publicBootJson, err := json.Marshal(b)
+	err?
+	bootJsonAddress := path.Join(t.StorageLocation, "releases.json")
+	os.WriteFile(bootJsonAddress, publicBootJson, 0777)?
+	return b, nil
+}
 
-func GetReleasesInfo(username string, repository string) (ReleasesJson, error) {
-	resp, err := http.Get("https://api.github.com/repos/" + username + "/" + repository + "/releases/latest")
+func (t Task) GetReleasesInfo() (ReleasesJson, error) {
+	resp, err := http.Get("https://api.github.com/repos/" + t.UserName + "/" + t.Repository + "/releases/latest")
 	err?
 	defer func() { resp.Body.Close()! }()
 
 	if resp.StatusCode == 404 {
-		fmt.Errorf("GitHub username:%s repository:%s no release information exists", username, repository)?
+		fmt.Errorf("GitHub username:%s repository:%s no release information exists", t.UserName, t.Repository)?
 	}
 	body, err := io.ReadAll(resp.Body)
 	err?
+	var data ReleasesJson
 	json.Unmarshal(body, &data)?
 	return data, nil
 }
 
-func DownloadReleasePackage(downloadAddress, tarballUrl string) error {
+func (r ReleasesJson) CheckIsLatest(t Task) (bool, error) {
+	idLogAddress := path.Join(t.StorageLocation, t.UserName+"_"+t.Repository+"_releases_id.log")
+	if _, err := os.Stat(idLogAddress); err == nil {
+		content, err := os.ReadFile(idLogAddress)
+		err?
+		fileId, _ := strconv.ParseInt(string(content), 10, 64)
+		if fileId == r.Id {
+			return true, nil
+		}
+	}
+	os.WriteFile(idLogAddress, []byte(strconv.FormatInt(r.Id, 10)), 0777)?
+	return false, nil
+}
+
+func (r ReleasesJson) DownloadReleasePackage(t Task, localFileName string) error {
+	downloadAddress := path.Join(t.StorageLocation, localFileName)
 	if _, err := os.Stat(downloadAddress); err == nil {
 		os.Remove(downloadAddress)?
 	}
-	out, err := os.Create(downloadAddress + ".tmp")
+	f, err := os.Create(downloadAddress + ".tmp")
 	err?
-	defer func() { out.Close()! }()
+	defer func() { f.Close()! }()
 
-	resp, err := http.Get(tarballUrl)
+	resp, err := http.Get(r.TarballUrl)
 	err?
 	defer func() { resp.Body.Close()! }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("bad status: %s", resp.Status)
 	}
-	_, err = io.Copy(out, resp.Body)
+	_, err = io.Copy(f, resp.Body)
 	err?
 	os.Rename(downloadAddress+".tmp", downloadAddress)?
 	return nil

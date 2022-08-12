@@ -1,0 +1,28 @@
+package hooks
+
+import (
+	"os"
+	"path"
+	"strconv"
+	"time"
+)
+
+func (b BootJson) UpdateLog(t Task) error {
+	logAddress := path.Join(t.StorageLocation, t.UserName+"_"+t.Repository+"_update.log")
+	f, err := os.OpenFile(logAddress, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+	err?
+	defer func() { f.Close()! }()
+	_, err = f.WriteString(`
+
+` + time.Now().UTC().String() + ` 更新版本信息：
+    - 当前版本名：` + b.Name + `
+    - 当前版本ID：` + strconv.FormatInt(b.Id, 10) + `
+    - 当前版本发布时间：` + b.PublicDate + `
+    - 当前版本下载地址：` + b.TarballUrl + `
+    - 当前版本原始下载地址：` + b.OldTarballUrl + `
+    - 当前版本HTML地址：` + b.HtmlUrl + `
+
+`)
+	err?
+	return nil
+}
