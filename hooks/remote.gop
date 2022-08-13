@@ -17,7 +17,7 @@ func (r ReleasesJson) GeneralBootFile(t Task, localFileName string) (BootJson, e
 	b.Id = r.Id
 	b.PublicDate = r.PublicDate
 	b.Body = r.Body
-	if r.TarballUrl[len(t.PublicUrl)-1:] == "/" {
+	if t.PublicUrl[len(t.PublicUrl)-1:] == "/" {
 		b.TarballUrl = t.PublicUrl + localFileName
 	} else {
 		b.TarballUrl = t.PublicUrl + "/" + localFileName
@@ -30,9 +30,13 @@ func (r ReleasesJson) GeneralBootFile(t Task, localFileName string) (BootJson, e
 	return b, nil
 }
 
-func (t Task) GetReleasesInfo() (ReleasesJson, error) {
-	resp, err := http.Get("https://api.github.com/repos/" + t.UserName + "/" + t.Repository + "/releases/latest")
+func (t Task) GetReleasesInfo(g GitHubOAuth) (ReleasesJson, error) {
+	url := "https://api.github.com/repos/" + t.UserName + "/" + t.Repository + "/releases/latest"
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
 	err?
+	req.SetBasicAuth(g.UserName, g.PassWord)
+	resp, err := client.Do(req)
 	defer func() { resp.Body.Close()! }()
 
 	if resp.StatusCode == 404 {

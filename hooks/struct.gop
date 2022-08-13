@@ -1,5 +1,10 @@
 package hooks
 
+type GitHubOAuth struct {
+	UserName string `yaml:"username" validate:"required"`
+	PassWord string `yaml:"password" validate:"required"`
+}
+
 type Task struct {
 	RunState        string `yaml:"run-state" validate:"required,boolean"`
 	UserName        string `yaml:"username" validate:"required"`
@@ -10,7 +15,8 @@ type Task struct {
 }
 
 type Config struct {
-	Tasks []Task `yaml:"tasks"  validate:"required,dive"`
+	GitHubOAuth GitHubOAuth `yaml:"github-oauth" validate:"required"`
+	Tasks       []Task      `yaml:"tasks"  validate:"required,dive"`
 }
 
 type ReleasesJson struct {
