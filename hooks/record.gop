@@ -14,13 +14,13 @@ func (b BootJson) UpdateLog(t Task) error {
 	defer func() { f.Close()! }()
 	_, err = f.WriteString(`
 
-` + time.Now().UTC().String() + ` 更新版本信息：
-    - 当前版本名：` + b.Name + `
-    - 当前版本ID：` + strconv.FormatInt(b.Id, 10) + `
-    - 当前版本发布时间：` + b.PublicDate + `
-    - 当前版本下载地址：` + b.TarballUrl + `
-    - 当前版本原始下载地址：` + b.OldTarballUrl + `
-    - 当前版本HTML地址：` + b.HtmlUrl + `
+` + time.Now().UTC().String() + ` Updated version information:
+    - Current version name: ` + b.Name + `
+    - Current Version ID: ` + strconv.FormatInt(b.Id, 10) + `
+    - Current version release date:` + b.PublicDate + `
+    - Current version download link: ` + b.TarballUrl + `
+    - Current version original download link: ` + b.OldTarballUrl + `
+    - Current version HTML url: ` + b.HtmlUrl + `
 
 `)
 	err?
